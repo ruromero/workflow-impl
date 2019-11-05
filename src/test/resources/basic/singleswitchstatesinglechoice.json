@@ -1,14 +1,16 @@
 {
   "name": "test-wf",
-  "starts-at": "test-state",
+  "startAt": "test-state",
   "states": [
     {
       "choices": [
         {
-          "path": "testpath",
-          "value": "testvalue",
-          "operator": "Equals",
-          "next-state": "testnextstate"
+          "condition": {
+            "path": "testpath",
+            "value": "testvalue",
+            "operator": "Equals"
+          },
+          "nextState": "testnextstate"
         }
       ],
       "default": "defaultteststate",

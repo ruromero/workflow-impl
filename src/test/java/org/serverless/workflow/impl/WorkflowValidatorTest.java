@@ -90,7 +90,7 @@ public class WorkflowValidatorTest extends BaseWorkflowTest {
                      validationErrorList.size());
 
         expectError(validationErrorList,
-                    "#/trigger-defs/0: required key [name] not found",
+                    "#/eventTriggers/0: required key [name] not found",
                     ValidationError.SCHEMA_VALIDATION);
         expectError(validationErrorList,
                     "No states found.",
@@ -169,36 +169,6 @@ public class WorkflowValidatorTest extends BaseWorkflowTest {
                     ValidationError.WORKFLOW_VALIDATION);
         expectError(validationErrorList,
                     "No end state found.",
-                    ValidationError.WORKFLOW_VALIDATION);
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"basic/emptyworkflow.json", "basic/emptyworkflow.yml"})
-    public void testStrictValidationEnabled(String model) {
-
-        WorkflowManager workflowManager = getWorkflowManager();
-        assertNotNull(workflowManager);
-        workflowManager.setMarkup(getFileContents(getResourcePath(model)));
-        WorkflowValidator workflowValidator = workflowManager.getWorkflowValidator();
-        assertNotNull(workflowValidator);
-        workflowValidator.setSchemaValidationEnabled(false);
-        workflowValidator.setStrictValidationEnabled(true);
-
-        List<ValidationError> validationErrorList = workflowValidator.validate();
-
-        assertEquals(4,
-                     validationErrorList.size());
-        expectError(validationErrorList,
-                    "No states found.",
-                    ValidationError.WORKFLOW_VALIDATION);
-        expectError(validationErrorList,
-                    "No start state found.",
-                    ValidationError.WORKFLOW_VALIDATION);
-        expectError(validationErrorList,
-                    "No end state found.",
-                    ValidationError.WORKFLOW_VALIDATION);
-        expectError(validationErrorList,
-                    "Workflow does not define a start state",
                     ValidationError.WORKFLOW_VALIDATION);
     }
 

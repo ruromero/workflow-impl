@@ -1,17 +1,24 @@
 {
-  "starts-at": "switchstate",
+  "startAt": "switchstate",
   "states": [
     {
       "choices": [
         {
-          "or": [
-            {
-              "path": "testpath",
-              "value": "testvalue",
-              "operator": "Equals"
-            }
-          ],
-          "next-state": "testnextstate"
+          "condition": {
+            "or": [
+              {
+                "path": "testpath",
+                "value": "testvalue",
+                "operator": "Equals"
+              },
+              {
+                "path": "testpath",
+                "value": "othervalue",
+                "operator": "Equals"
+              }
+            ]
+          },
+          "nextState": "testnextstate"
         }
       ],
       "default": "defaultteststate",

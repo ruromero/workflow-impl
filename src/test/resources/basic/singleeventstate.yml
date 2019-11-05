@@ -1,21 +1,12 @@
 name: "test-wf"
-starts-at: "test-state"
+startAt: "test-state"
 states:
 - events:
-  - event-expression: "testEventExpression"
-    timeout: "testTimeout"
-    action-mode: "SEQUENTIAL"
-    actions:
-    - function:
-        name: "testFunction"
-        type: "someType"
-      timeout: "PT5S"
-      retry:
-        match: "testMatch"
-        retry-interval: "PT5S"
-        max-retry: 10
-        next-state: "testNextRetryState"
-    next-state: "testNextState"
+  - event: "testEventName"
+    timeout:
+      period: "testTimeout"
+      then: "timeoutState"
+    nextState: "testNextState"
   name: "test-state"
   type: "EVENT"
   end: true

@@ -25,9 +25,8 @@ import org.junit.jupiter.api.Test;
 import org.serverless.workflow.api.Workflow;
 import org.serverless.workflow.api.WorkflowManager;
 import org.serverless.workflow.api.WorkflowValidator;
-import org.serverless.workflow.api.actions.Action;
 import org.serverless.workflow.api.events.Event;
-import org.serverless.workflow.api.events.TriggerEvent;
+import org.serverless.workflow.api.events.EventTrigger;
 import org.serverless.workflow.api.states.EventState;
 import org.serverless.workflow.impl.utils.WorkflowUtils;
 
@@ -41,7 +40,7 @@ import static org.serverless.workflow.impl.util.IsEqualJSON.equalToJSONInFile;
 public class PropertySourceTest extends BaseWorkflowTest {
 
     @Test
-    public void testFromPropertySource() throws Exception {
+    public void testFromPropertySource() {
         WorkflowManager workflowManager = getWorkflowManager();
         assertNotNull(workflowManager);
         workflowManager.setMarkup(getFileContents(getResourcePath("propertysource/propertysourceeventstatewithtrigger.json")));
@@ -49,8 +48,7 @@ public class PropertySourceTest extends BaseWorkflowTest {
         Workflow workflow = workflowManager.getWorkflow();
         assertNotNull(workflow);
 
-        assertEquals("test-wf",
-                     workflow.getName());
+        assertEquals("test-wf", workflow.getName());
 
         WorkflowValidator workflowValidator = workflowManager.getWorkflowValidator();
         assertTrue(workflowValidator.isValid());
@@ -73,63 +71,48 @@ public class PropertySourceTest extends BaseWorkflowTest {
         Event event = eventState.getEvents().get(0);
         assertEquals("testNextState",
                      event.getNextState());
-        assertEquals("name eq 'test-trigger'",
-                     event.getEventExpression());
-        assertEquals("testTimeout",
-                     event.getTimeout());
+        assertEquals("test-event",
+                     event.getEvent());
+        assertEquals("timeoutPeriod",
+                     event.getTimeout().getPeriod());
+        assertEquals("timeoutState",
+                     event.getTimeout().getThen());
 
-        assertNotNull(event.getActions());
+        assertNotNull(workflow.getEventTriggers());
         assertEquals(1,
-                     event.getActions().size());
-        Action action = event.getActions().get(0);
-        assertNotNull(action);
-        assertEquals("testFunction",
-                     action.getFunction().getName());
-        assertEquals("testMatch",
-                     action.getRetry().getMatch());
-        assertEquals("testNextRetryState",
-                     action.getRetry().getNextState());
+                     workflow.getEventTriggers().size());
 
-        assertNotNull(workflow.getTriggerDefs());
-        assertEquals(1,
-                     workflow.getTriggerDefs().size());
-
-        assertEquals("test-trigger",
-                     workflow.getTriggerDefs().get(0).getName());
+        assertEquals("test-event",
+                     workflow.getEventTriggers().get(0).getName());
         assertEquals("testsource",
-                     workflow.getTriggerDefs().get(0).getSource());
+                     workflow.getEventTriggers().get(0).getSource());
         assertEquals("testeventtype",
-                     workflow.getTriggerDefs().get(0).getType());
+                     workflow.getEventTriggers().get(0).getType());
         assertEquals("testcorrelationtoken",
-                     workflow.getTriggerDefs().get(0).getCorrelationToken());
+                     workflow.getEventTriggers().get(0).getCorrelationToken());
 
-        assertTrue(WorkflowUtils.haveTriggers(workflowManager));
+        assertTrue(WorkflowUtils.hasEventTriggers(workflowManager));
 
         assertTrue(WorkflowUtils.haveStates(workflowManager));
 
-        assertEquals(1,
-                     WorkflowUtils.getUniqueStates(workflowManager).size());
-        assertEquals(1,
-                     WorkflowUtils.getUniqueTriggerEvents(workflowManager).size());
+        assertEquals(1, WorkflowUtils.getUniqueStates(workflowManager).size());
+        assertEquals(1, WorkflowUtils.getEventTriggers(workflowManager).size());
 
-        TriggerEvent triggerEvent = WorkflowUtils.getUniqueTriggerEvents(workflowManager).get("test-trigger");
-        assertNotNull(triggerEvent);
+        EventTrigger EventTrigger = WorkflowUtils.getEventTriggers(workflowManager).get("test-event");
+        assertNotNull(EventTrigger);
 
-        List<EventState> eventStatesForTrigger = WorkflowUtils.getEventStatesForTriggerEvent(triggerEvent,
-                                                                                             workflowManager);
+        List<Event> eventStatesForTrigger = WorkflowUtils.getEventsByTrigger(EventTrigger, workflowManager);
         assertNotNull(eventStatesForTrigger);
-        assertEquals(1,
-                     eventStatesForTrigger.size());
-        EventState eventStateForTrigger = eventStatesForTrigger.get(0);
-        assertEquals("test-state",
-                     eventStateForTrigger.getName());
+        assertEquals(1, eventStatesForTrigger.size());
+        Event eventForTrigger = eventStatesForTrigger.get(0);
+        assertEquals("test-event", eventForTrigger.getEvent());
 
         assertThat(workflowManager.toJson(),
                    equalToJSONInFile(getResourcePathFor("propertysource/propertysourceeventstatewithtriggervaluesresolved.json")));
     }
 
     @Test
-    public void testYamlFromPropertySource() throws Exception {
+    public void testYamlFromPropertySource() {
         WorkflowManager workflowManager = getWorkflowManager();
         assertNotNull(workflowManager);
         workflowManager.setMarkup(getFileContents(getResourcePath("propertysource/propertysourceeventstatewithtrigger.yml")));
@@ -161,56 +144,45 @@ public class PropertySourceTest extends BaseWorkflowTest {
         Event event = eventState.getEvents().get(0);
         assertEquals("testNextState",
                      event.getNextState());
-        assertEquals("name eq 'test-trigger'",
-                     event.getEventExpression());
-        assertEquals("testTimeout",
-                     event.getTimeout());
+        assertEquals("test-event",
+                     event.getEvent());
+        assertEquals("timeoutPeriod",
+                     event.getTimeout().getPeriod());
+        assertEquals("timeoutState",
+                     event.getTimeout().getThen());
 
-        assertNotNull(event.getActions());
+        assertNotNull(workflow.getEventTriggers());
         assertEquals(1,
-                     event.getActions().size());
-        Action action = event.getActions().get(0);
-        assertNotNull(action);
-        assertEquals("testFunction",
-                     action.getFunction().getName());
-        assertEquals("testMatch",
-                     action.getRetry().getMatch());
-        assertEquals("testNextRetryState",
-                     action.getRetry().getNextState());
+                     workflow.getEventTriggers().size());
 
-        assertNotNull(workflow.getTriggerDefs());
-        assertEquals(1,
-                     workflow.getTriggerDefs().size());
-
-        assertEquals("test-trigger",
-                     workflow.getTriggerDefs().get(0).getName());
+        assertEquals("test-event",
+                     workflow.getEventTriggers().get(0).getName());
         assertEquals("testsource",
-                     workflow.getTriggerDefs().get(0).getSource());
+                     workflow.getEventTriggers().get(0).getSource());
         assertEquals("testeventtype",
-                     workflow.getTriggerDefs().get(0).getType());
+                     workflow.getEventTriggers().get(0).getType());
         assertEquals("testcorrelationtoken",
-                     workflow.getTriggerDefs().get(0).getCorrelationToken());
+                     workflow.getEventTriggers().get(0).getCorrelationToken());
 
-        assertTrue(WorkflowUtils.haveTriggers(workflowManager));
+        assertTrue(WorkflowUtils.hasEventTriggers(workflowManager));
 
         assertTrue(WorkflowUtils.haveStates(workflowManager));
 
         assertEquals(1,
                      WorkflowUtils.getUniqueStates(workflowManager).size());
         assertEquals(1,
-                     WorkflowUtils.getUniqueTriggerEvents(workflowManager).size());
+                     WorkflowUtils.getEventTriggers(workflowManager).size());
 
-        TriggerEvent triggerEvent = WorkflowUtils.getUniqueTriggerEvents(workflowManager).get("test-trigger");
-        assertNotNull(triggerEvent);
+        EventTrigger EventTrigger = WorkflowUtils.getEventTriggers(workflowManager).get("test-event");
+        assertNotNull(EventTrigger);
 
-        List<EventState> eventStatesForTrigger = WorkflowUtils.getEventStatesForTriggerEvent(triggerEvent,
-                                                                                             workflowManager);
+        List<Event> eventStatesForTrigger = WorkflowUtils.getEventsByTrigger(EventTrigger, workflowManager);
         assertNotNull(eventStatesForTrigger);
         assertEquals(1,
                      eventStatesForTrigger.size());
-        EventState eventStateForTrigger = eventStatesForTrigger.get(0);
-        assertEquals("test-state",
-                     eventStateForTrigger.getName());
+        Event eventForTrigger = eventStatesForTrigger.get(0);
+        assertEquals("test-event",
+                     eventForTrigger.getEvent());
 
         assertEquals(workflowManager.toYaml(),
                      getFileContents(Paths.get(getResourcePathFor("propertysource/propertysourceeventstatewithtriggervaluesresolved.yml"))));

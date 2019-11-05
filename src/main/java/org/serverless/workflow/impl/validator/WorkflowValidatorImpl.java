@@ -43,7 +43,6 @@ public class WorkflowValidatorImpl implements WorkflowValidator {
 
     private boolean enabled = true;
     private boolean schemaValidationEnabled = true;
-    private boolean strictValidationEnabled = false;
     private List<ValidationError> validationErrors = new ArrayList<>();
     private Schema workflowSchema = WorkflowSchemaLoader.getWorkflowSchema();
     private WorkflowManager workflowManager;
@@ -55,7 +54,6 @@ public class WorkflowValidatorImpl implements WorkflowValidator {
         validationErrors.clear();
         enabled = true;
         schemaValidationEnabled = true;
-        strictValidationEnabled = false;
     }
 
     @Override
@@ -78,9 +76,9 @@ public class WorkflowValidatorImpl implements WorkflowValidator {
                                            ValidationError.SCHEMA_VALIDATION);
                         // suberrors
                         e.getCausingExceptions().stream()
-                                .map(ValidationException::getMessage)
-                                .forEach(m -> addValidationError(m,
-                                                                 ValidationError.SCHEMA_VALIDATION));
+                            .map(ValidationException::getMessage)
+                            .forEach(m -> addValidationError(m,
+                                                             ValidationError.SCHEMA_VALIDATION));
                     }
                 }
 
@@ -91,12 +89,10 @@ public class WorkflowValidatorImpl implements WorkflowValidator {
                                            ValidationError.WORKFLOW_VALIDATION);
                     }
 
-                    if(workflow.getStartsAt() == null || workflow.getStartsAt().trim().isEmpty()) {
+                    if (workflow.getStartAt() == null || workflow.getStartAt().trim().isEmpty()) {
                         addValidationError("Workflow does not define a start state",
                                            ValidationError.WORKFLOW_VALIDATION);
                     }
-
-
 
                     // make sure we have at least one state
                     if (workflow.getStates() == null || workflow.getStates().isEmpty()) {
@@ -104,7 +100,7 @@ public class WorkflowValidatorImpl implements WorkflowValidator {
                                            ValidationError.WORKFLOW_VALIDATION);
                     }
 
-                    // make sure we have at least one end state and check for null next id and next-state
+                    // make sure we have at least one end state and check for null next id and nextState
                     final Validation validation = new Validation();
                     if (workflow.getStates() != null) {
                         workflow.getStates().forEach(s -> {
@@ -115,7 +111,7 @@ public class WorkflowValidatorImpl implements WorkflowValidator {
                                 validation.addState(s.getName());
                             }
 
-                            if(workflow.getStartsAt() != null && s.getName() != null && workflow.getStartsAt().equals(s.getName())) {
+                            if (workflow.getStartAt() != null && s.getName() != null && workflow.getStartAt().equals(s.getName())) {
                                 validation.addStartState();
                             }
 
@@ -147,9 +143,9 @@ public class WorkflowValidatorImpl implements WorkflowValidator {
                                                        ValidationError.WORKFLOW_VALIDATION);
                                 }
 
-                                if(parallelState.getBranches() != null && parallelState.getBranches().size() > 0) {
-                                    for(Branch branch : parallelState.getBranches()) {
-                                        if(branch.getStartsAt() == null || branch.getStartsAt().trim().isEmpty()) {
+                                if (parallelState.getBranches() != null && parallelState.getBranches().size() > 0) {
+                                    for (Branch branch : parallelState.getBranches()) {
+                                        if (branch.getStartAt() == null || branch.getStartAt().trim().isEmpty()) {
                                             addValidationError("Branch does not define a start state..",
                                                                ValidationError.WORKFLOW_VALIDATION);
                                         }
@@ -183,15 +179,15 @@ public class WorkflowValidatorImpl implements WorkflowValidator {
                     }
 
                     // make sure if we have trigger events that they unique name
-                    if (workflow.getTriggerDefs() != null) {
-                        workflow.getTriggerDefs().forEach(triggerEvent -> {
-                            if (triggerEvent.getName() == null || triggerEvent.getName().isEmpty()) {
+                    if (workflow.getEventTriggers() != null) {
+                        workflow.getEventTriggers().forEach(trigger -> {
+                            if (trigger.getName() == null || trigger.getName().isEmpty()) {
                                 addValidationError("Trigger Event has no name",
                                                    ValidationError.WORKFLOW_VALIDATION);
                             } else {
-                                validation.addEvent(triggerEvent.getName());
+                                validation.addEvent(trigger.getName());
                             }
-                            if (triggerEvent.getType() == null || triggerEvent.getType().isEmpty()) {
+                            if (trigger.getType() == null || trigger.getType().isEmpty()) {
                                 addValidationError("Trigger Event has no type",
                                                    ValidationError.WORKFLOW_VALIDATION);
                             }
@@ -219,11 +215,6 @@ public class WorkflowValidatorImpl implements WorkflowValidator {
     @Override
     public void setSchemaValidationEnabled(boolean schemaValidationEnabled) {
         this.schemaValidationEnabled = schemaValidationEnabled;
-    }
-
-    @Override
-    public void setStrictValidationEnabled(boolean strictValidationEnabled) {
-        this.strictValidationEnabled = strictValidationEnabled;
     }
 
     private void addValidationError(String message,

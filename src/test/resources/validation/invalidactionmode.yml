@@ -2,18 +2,18 @@ name: test-wf
 states:
 - name: test-state
   events:
-  - event-expression: testEventExpression
+  - event: testEventExpression
     timeout: testTimeout
-    action-mode: CUSTOMACTIONMODE
+    actionMode: CUSTOMACTIONMODE
     actions:
     - function:
         name: testFunction
       timeout: PT5S
       retry:
         match: testMatch
-        retry-interval: PT5S
-        max-retry: 10
-        next-state: testNextRetryState
-    next-state: testNextState
+        interval: PT5S
+        maxRetries: 10
+        nextState: testNextRetryState
+    nextState: testNextState
   type: EVENT
   end: true

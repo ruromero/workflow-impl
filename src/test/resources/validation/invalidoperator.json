@@ -10,10 +10,10 @@
               "path": "testpath",
               "value": "testvalue",
               "operator": "CUSTOMOPERATOR",
-              "next-state": "testnextstate"
+              "nextState": "testnextstate"
             }
           ],
-          "next-state": "testnextstate"
+          "nextState": "testnextstate"
         }
       ],
       "default": "defaultteststate",

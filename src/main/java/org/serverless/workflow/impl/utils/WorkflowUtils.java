@@ -27,22 +27,23 @@ import java.util.stream.Collectors;
 import org.serverless.workflow.api.WorkflowManager;
 import org.serverless.workflow.api.actions.Action;
 import org.serverless.workflow.api.events.Event;
-import org.serverless.workflow.api.events.TriggerEvent;
+import org.serverless.workflow.api.events.EventTrigger;
 import org.serverless.workflow.api.functions.Function;
 import org.serverless.workflow.api.interfaces.State;
+import org.serverless.workflow.api.states.DefaultState;
 import org.serverless.workflow.api.states.EventState;
 
 public class WorkflowUtils {
 
-    public static boolean haveTriggers(WorkflowManager workflowManager) {
-        return workflowManager.getWorkflow().getTriggerDefs() != null && !workflowManager.getWorkflow().getTriggerDefs().isEmpty();
+    public static boolean hasEventTriggers(WorkflowManager workflowManager) {
+        return workflowManager.getWorkflow().getEventTriggers() != null && !workflowManager.getWorkflow().getEventTriggers().isEmpty();
     }
 
-    public static Map<String, TriggerEvent> getUniqueTriggerEvents(WorkflowManager workflowManager) {
-        if (workflowManager.getWorkflow().getTriggerDefs() != null) {
-            return workflowManager.getWorkflow().getTriggerDefs().stream()
-                    .collect(Collectors.toMap(TriggerEvent::getName,
-                                              tiggerEvent -> tiggerEvent));
+    public static Map<String, EventTrigger> getEventTriggers(WorkflowManager workflowManager) {
+        if (workflowManager.getWorkflow().getEventTriggers() != null) {
+            return workflowManager.getWorkflow().getEventTriggers().stream()
+                .collect(Collectors.toMap(EventTrigger::getName,
+                                          trigger -> trigger));
         }
 
         return null;
@@ -53,110 +54,60 @@ public class WorkflowUtils {
     }
 
     public static Map<String, State> getUniqueStates(WorkflowManager workflowManager) {
-        if (workflowManager.getWorkflow().getTriggerDefs() != null) {
+        if (workflowManager.getWorkflow().getEventTriggers() != null) {
             return workflowManager.getWorkflow().getStates().stream()
-                    .collect(Collectors.toMap(State::getName,
-                                              state -> state));
+                .collect(Collectors.toMap(State::getName,
+                                          state -> state));
         }
 
         return null;
     }
 
-    public static List<EventState> getEventStatesForTriggerEvent(TriggerEvent triggerEvent,
-                                                                 WorkflowManager workflowManager) {
-        List<EventState> triggerStates = new ArrayList<>();
-
-        for (State state : workflowManager.getWorkflow().getStates()) {
-            if (state instanceof EventState) {
-                EventState eventState = (EventState) state;
-                List<Event> triggeredEvents = eventState.getEvents().stream()
-                        .filter(event -> workflowManager.getExpressionEvaluator()
-                                .evaluate(event.getEventExpression(),
-                                          triggerEvent)).collect(Collectors.toList());
-                if (triggeredEvents != null && !triggeredEvents.isEmpty()) {
-                    triggerStates.add(eventState);
-                }
-            }
-        }
-
-        return triggerStates;
+    public static List<Event> getEventsByTrigger(EventTrigger trigger, WorkflowManager workflowManager) {
+        return workflowManager.getWorkflow().getStates()
+            .stream()
+            .filter(state -> DefaultState.Type.EVENT.equals(state.getType()))
+            .map(state -> ((EventState) state).getEvents())
+            .flatMap(List::stream)
+            .filter(e -> e.getEvent().equalsIgnoreCase(trigger.getName()))
+            .collect(Collectors.toList());
     }
 
-    public static List<TriggerEvent> getTriggerEventsForEventState(EventState eventState,
-                                                                   WorkflowManager workflowManager) {
-        List<TriggerEvent> eventStateTriggers = new ArrayList<>();
-
-        for (TriggerEvent triggerEvent : workflowManager.getWorkflow().getTriggerDefs()) {
-            List<Event> triggeredEvents = eventState.getEvents().stream()
-                    .filter(event -> workflowManager.getExpressionEvaluator()
-                            .evaluate(event.getEventExpression(),
-                                      triggerEvent)).collect(Collectors.toList());
-
-            if (triggeredEvents != null && !triggeredEvents.isEmpty()) {
-                eventStateTriggers.add(triggerEvent);
-            }
-        }
-
-        return eventStateTriggers;
+    public static List<EventTrigger> getTriggersByState(EventState eventState, WorkflowManager workflowManager) {
+        return workflowManager.getWorkflow().getEventTriggers()
+            .stream()
+            .filter(trigger -> eventState.getEvents()
+                .stream()
+                .anyMatch(e -> e.getEvent().equalsIgnoreCase(trigger.getName())))
+            .collect(Collectors.toList());
     }
 
-    public static List<TriggerEvent> getAllTriggerEventsAssociatedWithEventStates(WorkflowManager workflowManager) {
-        Map<String, TriggerEvent> associatedTriggersMap = new HashMap();
-        for (State state : workflowManager.getWorkflow().getStates()) {
-            if (state instanceof EventState) {
-                EventState eventState = (EventState) state;
-                for (TriggerEvent triggerEvent : workflowManager.getWorkflow().getTriggerDefs()) {
-                    List<Event> triggeredEvents = eventState.getEvents().stream()
-                            .filter(event -> workflowManager.getExpressionEvaluator()
-                                    .evaluate(event.getEventExpression(),
-                                              triggerEvent)).collect(Collectors.toList());
-                    if (triggeredEvents != null && !triggeredEvents.isEmpty()) {
-                        associatedTriggersMap.put(triggerEvent.getName(),
-                                                  triggerEvent);
-                    }
-                }
-            }
-        }
-
-        return new ArrayList<>(associatedTriggersMap.values());
-    }
-
-    public static List<Action> getAllActionsForEventState(EventState eventState) {
-        List<Action> actions = new ArrayList<>();
-        eventState.getEvents().forEach(event -> actions.addAll(event.getActions()));
-        return actions;
-    }
-
-    public static List<Action> getAllActionsForEventStates(List<EventState> eventStates) {
-        List<Action> actions = new ArrayList<>();
-        eventStates.forEach(eventState -> actions.addAll(getAllActionsForEventState(eventState)));
-        return actions;
-    }
-
-    public static List<Function> getAllFunctionsForActions(List<Action> actions) {
+    public static List<Function> getFunctions(List<Action> actions) {
         List<Function> functions = new ArrayList<>();
         actions.forEach(action -> functions.add(action.getFunction()));
         return functions;
     }
 
-    public static List<Function> getAllFunctionsForEventStates(List<EventState> eventStates) {
-        List<Action> actions = getAllActionsForEventStates(eventStates);
-        return getAllFunctionsForActions(actions);
-    }
-
     public static State getStartState(WorkflowManager workflowManager) {
-        return workflowManager.getWorkflow().getStates().stream().filter(s -> s.getName().equals(workflowManager.getWorkflow().getStartsAt()))
-                .findFirst().orElse(null);
+        return workflowManager.getWorkflow().getStates()
+            .stream()
+            .filter(s -> s.getName().equals(workflowManager.getWorkflow().getStartAt()))
+            .findFirst()
+            .orElse(null);
     }
 
-    public static State getStateByNAme(String stateName,
+    public static State getStateByName(String stateName,
                                        WorkflowManager workflowManager) {
-        return workflowManager.getWorkflow().getStates().stream().filter(state -> state.getName().equals(stateName))
-                .findFirst().orElse(null);
+        return workflowManager.getWorkflow().getStates()
+            .stream()
+            .filter(state -> state.getName().equals(stateName))
+            .findFirst()
+            .orElse(null);
     }
 
-    public static boolean haveEndState(WorkflowManager workflowManager) {
-        return workflowManager.getWorkflow().getStates().stream()
-                .anyMatch(state -> state.isEnd());
+    public static boolean hasEndState(WorkflowManager workflowManager) {
+        return workflowManager.getWorkflow().getStates()
+            .stream()
+            .anyMatch(state -> state.isEnd());
     }
 }

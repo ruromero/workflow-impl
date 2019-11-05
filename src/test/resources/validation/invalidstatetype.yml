@@ -1,7 +1,7 @@
 name: test-wf
 states:
-- time-delay: PT5S
-  next-state: testNextState
+- timeDelay: PT5S
+  nextState: testNextState
   name: test-state
   type: CUSTOMSTATETYPE
   end: true

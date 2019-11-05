@@ -1,10 +1,10 @@
 {
   "name": "test-wf",
-  "starts-at": "duplicated",
+  "startAt": "duplicated",
   "states": [
     {
       "name": "duplicated",
-      "action-mode": "SEQUENTIAL",
+      "actionMode": "SEQUENTIAL",
       "actions": [
         {
           "function": {
@@ -13,13 +13,13 @@
           "timeout": "PT5S",
           "retry": {
             "match": "testMatch",
-            "retry-interval": "PT5S",
-            "max-retry": 10,
-            "next-state": "testNextRetryState"
+            "interval": "PT5S",
+            "maxRetries": 10,
+            "nextState": "testNextRetryState"
           }
         }
       ],
-      "next-state": "testnextstate",
+      "nextState": "testnextstate",
       "type": "OPERATION",
       "end": true
     },

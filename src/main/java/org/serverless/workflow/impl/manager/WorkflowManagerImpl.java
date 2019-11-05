@@ -18,23 +18,18 @@
 
 package org.serverless.workflow.impl.manager;
 
-import java.util.Map;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
-import org.serverless.workflow.api.ExpressionEvaluator;
 import org.serverless.workflow.api.Workflow;
 import org.serverless.workflow.api.WorkflowManager;
 import org.serverless.workflow.api.WorkflowValidator;
 import org.serverless.workflow.api.interfaces.Extension;
 import org.serverless.workflow.api.mapper.JsonObjectMapper;
 import org.serverless.workflow.api.mapper.YamlObjectMapper;
-import org.serverless.workflow.impl.expression.JexlExpressionEvaluatorImpl;
 import org.serverless.workflow.impl.validator.WorkflowValidatorImpl;
-import org.serverless.workflow.spi.ExpressionEvaluatorProvider;
 import org.serverless.workflow.spi.WorkflowPropertySourceProvider;
 import org.serverless.workflow.spi.WorkflowValidatorProvider;
 import org.slf4j.Logger;
@@ -43,8 +38,6 @@ import org.slf4j.LoggerFactory;
 public class WorkflowManagerImpl implements WorkflowManager {
 
     private Workflow workflow;
-    private Map<String, ExpressionEvaluator> expressionEvaluators;
-    private ExpressionEvaluator defaultExpressionEvaluator = new JexlExpressionEvaluatorImpl();
     private WorkflowValidator workflowValidator;
     private WorkflowValidator defaultWorkflowValidator = new WorkflowValidatorImpl();
     private JsonObjectMapper jsonObjectMapper = new JsonObjectMapper();
@@ -53,12 +46,7 @@ public class WorkflowManagerImpl implements WorkflowManager {
     private static Logger logger = LoggerFactory.getLogger(WorkflowManagerImpl.class);
 
     public WorkflowManagerImpl() {
-        expressionEvaluators = ExpressionEvaluatorProvider.getInstance().get();
         workflowValidator = WorkflowValidatorProvider.getInstance().get();
-
-        if (expressionEvaluators == null) {
-            throw new RuntimeException("Unable to retrieve expression evaluator");
-        }
 
         if (workflowValidator == null) {
             throw new RuntimeException("Unable to retrieve workflow validator");
@@ -71,8 +59,6 @@ public class WorkflowManagerImpl implements WorkflowManager {
             yamlObjectMapper = new YamlObjectMapper(WorkflowPropertySourceProvider.getInstance().get());
         } catch (Exception e) {
             logger.warn("Unable to load application.properties");
-            jsonObjectMapper = new JsonObjectMapper();
-            yamlObjectMapper = new YamlObjectMapper();
         }
     }
 
@@ -98,37 +84,6 @@ public class WorkflowManagerImpl implements WorkflowManager {
     }
 
     @Override
-    public void setExpressionEvaluator(ExpressionEvaluator expressionEvaluator) {
-        this.defaultExpressionEvaluator = expressionEvaluator;
-    }
-
-    @Override
-    public ExpressionEvaluator getExpressionEvaluator() {
-        return defaultExpressionEvaluator;
-    }
-
-    @Override
-    public ExpressionEvaluator getExpressionEvaluator(String evaluatorName) {
-        if (expressionEvaluators.containsKey(evaluatorName)) {
-            return expressionEvaluators.get(evaluatorName);
-        }
-
-        return defaultExpressionEvaluator;
-    }
-
-    @Override
-    public void setDefaultExpressionEvaluator(String evaluatorName) {
-        if (expressionEvaluators.containsKey(evaluatorName)) {
-            defaultExpressionEvaluator = expressionEvaluators.get(evaluatorName);
-        }
-    }
-
-    @Override
-    public void resetExpressionValidator() {
-        this.defaultExpressionEvaluator = new JexlExpressionEvaluatorImpl();
-    }
-
-    @Override
     public String toJson() {
         try {
             return jsonObjectMapper.writeValueAsString(workflow);
@@ -144,8 +99,8 @@ public class WorkflowManagerImpl implements WorkflowManager {
             String jsonString = jsonObjectMapper.writeValueAsString(workflow);
             JsonNode jsonNode = jsonObjectMapper.readTree(jsonString);
             YAMLFactory yamlFactory = new YAMLFactory()
-                    .disable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
-                    .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER);
+                .disable(YAMLGenerator.Feature.MINIMIZE_QUOTES)
+                .disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER);
             return new YAMLMapper(yamlFactory).writeValueAsString(jsonNode);
         } catch (Exception e) {
             logger.error("Error mapping to yaml: " + e.getMessage());

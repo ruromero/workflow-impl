@@ -1,26 +1,18 @@
 name: "workflow.name"
-starts-at: "workflow.state.name"
-trigger-defs:
-- name: "workflow.trigger.name"
-  source: "workflow.trigger.source"
-  type: "workflow.trigger.eventtype"
-  correlation-token: "workflow.trigger.correlationtoken"
+startAt: "workflow.state.name"
+eventTriggers:
+  - name: "workflow.trigger.name"
+    source: "workflow.trigger.source"
+    type: "workflow.trigger.eventtype"
+    correlationToken: "workflow.trigger.correlationtoken"
 states:
-- events:
-  - event-expression: "workflow.state.event.eventexpression"
-    timeout: "workflow.state.event.timeout"
-    action-mode: "workflow.state.event.actionmode"
-    actions:
-    - function:
-        name: "workflow.state.event.action.function.name"
-      timeout: "PT5S"
-      retry:
-        match: "workflow.state.event.action.retry.match"
-        retry-interval: "PT5S"
-        max-retry: 10
-        next-state: "workflow.state.event.action.retry.nextstate"
-    next-state: "workflow.state.event.nextstate"
-  name: "workflow.state.name"
-  type: "workflow.state.type"
-  end: true
+  - events:
+      - event: "workflow.trigger.name"
+        timeout:
+          period: "workflow.state.event.timeout.period"
+          then: "workflow.state.event.timeout.then"
+        nextState: "workflow.state.event.nextstate"
+    name: "workflow.state.name"
+    type: "workflow.state.type"
+    end: true
 

@@ -162,7 +162,7 @@ public class WorkflowExtensionsTest extends BaseWorkflowTest {
     }
 
     @Test
-    public void testTwoeExtensionsFromWorkflow() {
+    public void testTwoExtensionsFromWorkflow() {
         Map<String, String> firstTestParam3Map = new HashMap<>();
         firstTestParam3Map.put("key1",
                                "value1");

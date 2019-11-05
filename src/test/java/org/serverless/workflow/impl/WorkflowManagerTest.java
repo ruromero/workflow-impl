@@ -28,13 +28,11 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.serverless.workflow.api.Workflow;
 import org.serverless.workflow.api.WorkflowManager;
 import org.serverless.workflow.api.WorkflowValidator;
-import org.serverless.workflow.api.actions.Action;
-import org.serverless.workflow.api.actions.Retry;
 import org.serverless.workflow.api.events.Event;
-import org.serverless.workflow.api.events.TriggerEvent;
-import org.serverless.workflow.api.functions.Function;
+import org.serverless.workflow.api.events.EventTrigger;
 import org.serverless.workflow.api.interfaces.State;
 import org.serverless.workflow.api.states.EventState;
+import org.serverless.workflow.api.timeout.Timeout;
 import org.serverless.workflow.impl.utils.WorkflowUtils;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -78,61 +76,47 @@ public class WorkflowManagerTest extends BaseWorkflowTest {
         Event event = eventState.getEvents().get(0);
         assertEquals("testNextState",
                      event.getNextState());
-        assertNotNull(event.getActions());
 
+        assertNotNull(workflow.getEventTriggers());
         assertEquals(1,
-                     event.getActions().size());
+                     workflow.getEventTriggers().size());
 
-        assertNotNull(workflow.getTriggerDefs());
-        assertEquals(1,
-                     workflow.getTriggerDefs().size());
-
-        assertTrue(WorkflowUtils.haveTriggers(workflowManager));
+        assertTrue(WorkflowUtils.hasEventTriggers(workflowManager));
 
         assertTrue(WorkflowUtils.haveStates(workflowManager));
 
         assertEquals(1,
                      WorkflowUtils.getUniqueStates(workflowManager).size());
         assertEquals(1,
-                     WorkflowUtils.getUniqueTriggerEvents(workflowManager).size());
+                     WorkflowUtils.getEventTriggers(workflowManager).size());
 
-        TriggerEvent triggerEvent = WorkflowUtils.getUniqueTriggerEvents(workflowManager).get("test-trigger");
-        assertNotNull(triggerEvent);
+        EventTrigger EventTrigger = WorkflowUtils.getEventTriggers(workflowManager).get("test-event");
+        assertNotNull(EventTrigger);
 
-        List<EventState> eventStatesForTrigger = WorkflowUtils.getEventStatesForTriggerEvent(triggerEvent,
-                                                                                             workflowManager);
-        assertNotNull(eventStatesForTrigger);
+        List<Event> eventsForTrigger = WorkflowUtils.getEventsByTrigger(EventTrigger, workflowManager);
+        assertNotNull(eventsForTrigger);
         assertEquals(1,
-                     eventStatesForTrigger.size());
-        EventState eventStateForTrigger = eventStatesForTrigger.get(0);
-        assertEquals("test-state",
-                     eventStateForTrigger.getName());
+                     eventsForTrigger.size());
+        Event eventForTrigger = eventsForTrigger.get(0);
+        assertEquals("test-event", eventForTrigger.getEvent());
     }
 
     @Test
     public void testManagerFromWorkflow() {
-        Workflow workflow = new Workflow().withName("test-wf").withStartsAt("test-state")
-                .withTriggerDefs(
-                        Arrays.asList(
-                                new TriggerEvent().withName("test-trigger").withType("testeventtype")
-                                        .withCorrelationToken("testcorrelationtoken").withSource("testsource")
-                        )
+        Workflow workflow = new Workflow().withName("test-wf").withStartAt("test-state")
+            .withEventTriggers(
+                Arrays.asList(
+                    new EventTrigger().withName("test-event").withType("testeventtype")
+                        .withCorrelationToken("testcorrelationtoken").withSource("testsource")
                 )
-                .withStates(new ArrayList<State>() {{
-                    add(new EventState().withEnd(true).withName("test-state").withType(EventState.Type.EVENT)
-                                .withEvents(Arrays.asList(
-                                        new Event().withEventExpression("name eq 'test-trigger'").withTimeout("testTimeout")
-                                                .withActionMode(Event.ActionMode.SEQUENTIAL)
-                                                .withNextState("testNextState")
-                                                .withActions(Arrays.asList(
-                                                        new Action().withFunction(new Function().withName("testFunction"))
-                                                                .withTimeout("PT5S")
-                                                                .withRetry(new Retry().withMatch("testMatch").withMaxRetry(10)
-                                                                                   .withRetryInterval("PT5S")
-                                                                                   .withNextState("testNextRetryState"))
-                                                ))
-                                )));
-                }});
+            )
+            .withStates(new ArrayList<State>() {{
+                add(new EventState().withEnd(true).withName("test-state").withType(EventState.Type.EVENT)
+                        .withEvents(Arrays.asList(
+                            new Event().withEvent("test-event").withTimeout(new Timeout().withPeriod("testTimeout").withThen("timeoutState"))
+                                .withNextState("testNextState")
+                        )));
+            }});
 
         WorkflowManager workflowManager = getWorkflowManager();
         assertNotNull(workflowManager);
@@ -156,35 +140,29 @@ public class WorkflowManagerTest extends BaseWorkflowTest {
         Event event = eventState.getEvents().get(0);
         assertEquals("testNextState",
                      event.getNextState());
-        assertNotNull(event.getActions());
 
+        assertNotNull(workflow.getEventTriggers());
         assertEquals(1,
-                     event.getActions().size());
+                     workflow.getEventTriggers().size());
 
-        assertNotNull(workflow.getTriggerDefs());
-        assertEquals(1,
-                     workflow.getTriggerDefs().size());
-
-        assertTrue(WorkflowUtils.haveTriggers(workflowManager));
+        assertTrue(WorkflowUtils.hasEventTriggers(workflowManager));
 
         assertTrue(WorkflowUtils.haveStates(workflowManager));
 
         assertEquals(1,
                      WorkflowUtils.getUniqueStates(workflowManager).size());
         assertEquals(1,
-                     WorkflowUtils.getUniqueTriggerEvents(workflowManager).size());
+                     WorkflowUtils.getEventTriggers(workflowManager).size());
 
-        TriggerEvent triggerEvent = WorkflowUtils.getUniqueTriggerEvents(workflowManager).get("test-trigger");
-        assertNotNull(triggerEvent);
+        EventTrigger EventTrigger = WorkflowUtils.getEventTriggers(workflowManager).get("test-event");
+        assertNotNull(EventTrigger);
 
-        List<EventState> eventStatesForTrigger = WorkflowUtils.getEventStatesForTriggerEvent(triggerEvent,
-                                                                                             workflowManager);
-        assertNotNull(eventStatesForTrigger);
-        assertEquals(1,
-                     eventStatesForTrigger.size());
-        EventState eventStateForTrigger = eventStatesForTrigger.get(0);
-        assertEquals("test-state",
-                     eventStateForTrigger.getName());
+        List<Event> eventsForTrigger = WorkflowUtils.getEventsByTrigger(EventTrigger, workflowManager);
+        assertNotNull(eventsForTrigger);
+        assertEquals(1, eventsForTrigger.size());
+        Event eventForTrigger = eventsForTrigger.get(0);
+        assertEquals("test-event",
+                     eventForTrigger.getEvent());
 
         assertThat(workflowManager.toJson(),
                    equalToJSONInFile(getResourcePathFor("controller/eventstatewithtrigger.json")));

@@ -73,20 +73,20 @@ Given serverless workflow JSON which represents a workflow with a single Event S
   "owner" : "testOwner",
   "states" : [ {
     "events" : [ {
-      "event-expression" : "testEventExpression",
+      "event" : "testEventExpression",
       "timeout" : "testTimeout",
-      "action-mode" : "SEQUENTIAL",
+      "actionMode" : "SEQUENTIAL",
       "actions" : [ {
         "function" : "testFunction",
         "timeout" : 5,
         "retry" : {
           "match" : "testMatch",
-          "retry-interval" : 2,
-          "max-retry" : 10,
-          "next-state" : "testNextRetryState"
+          "interval" : 2,
+          "maxRetries" : 10,
+          "nextState" : "testNextRetryState"
         }
       } ],
-      "next-state" : "testNextState"
+      "nextState" : "testNextState"
     } ],
     "name" : "eventstate",
     "type" : "EVENT",
@@ -119,19 +119,19 @@ Same workflow model can be represented with YAML, for example:
 name: "test-wf"
 states:
 - events:
-  - event-expression: "testEventExpression"
+  - event: "testEventExpression"
     timeout: "testTimeout"
-    action-mode: "SEQUENTIAL"
+    actionMode: "SEQUENTIAL"
     actions:
     - function:
         name: "testFunction"
       timeout: 5
       retry:
         match: "testMatch"
-        retry-interval: 2
-        max-retry: 10
-        next-state: "testNextRetryState"
-    next-state: "testNextState"
+        interval: 2
+        maxRetries: 10
+        nextState: "testNextRetryState"
+    nextState: "testNextState"
   name: "test-state"
   type: "EVENT"
   start: true
@@ -179,9 +179,9 @@ This will produce a workflow JSON with a single Switch State:
         "path" : "testpath",
         "value" : "testvalue",
         "operator" : "EQ",
-        "next-state" : "testnextstate"
+        "nextState" : "testnextstate"
       } ],
-      "next-state" : "testnextstate"
+      "nextState" : "testnextstate"
     } ],
     "default" : "defaultteststate",
     "name" : "switchstate",
@@ -209,8 +209,8 @@ states:
     - path: "testpath"
       value: "testvalue"
       operator: "EQ"
-      next-state: "testnextstate"
-    next-state: "testnextstate"
+      nextState: "testnextstate"
+    nextState: "testnextstate"
   default: "defaultteststate"
   name: "test-state"
   type: "SWITCH"
@@ -253,8 +253,8 @@ be unable to parse it and throw an IllegalStateException. For example let's say 
   "name": "test-wf",
   "states": [
     {
-      "time-delay": 5,
-      "next-state": "testNextState",
+      "timeDelay": 5,
+      "nextState": "testNextState",
       "name": "test-state",
       "type": "CUSTOMSTATETYPE",
       "start": true
@@ -300,7 +300,7 @@ Or you can disable validation completely:
 
 #### Event Expression evaluation
 According to the specification Event States wait for events to happen before triggering one or more functions.
-Event states can have multiple events, and each event has an event-expression which defines which outside
+Event states can have multiple events, and each event has an event which defines which outside
 events they should trigger upon.
 
 This project provides two event expression evaluator implementations. 
@@ -323,9 +323,9 @@ Here are two simple examples:
 
 ```json
 ...
-"event-expression": "name eq 'testtrigger'"
+"event": "name eq 'testtrigger'"
 ...
-"event-expression": "name eq 'testtrigger' or name eq 'testtrigger2'",
+"event": "name eq 'testtrigger' or name eq 'testtrigger2'",
 ...
 ```
 
@@ -336,9 +336,9 @@ Similarly if you use SpEL, you can do for example:
 
 ```json
 ...
-"event-expression": "name eq 'testtrigger'",
+"event": "name eq 'testtrigger'",
 ...
-"event-expression": "name eq 'testtrigger' or name eq 'testtrigger2'",
+"event": "name eq 'testtrigger' or name eq 'testtrigger2'",
 ...
 ```
 
@@ -370,21 +370,21 @@ With this set up in your workflow json (same for yaml) you can use value substit
 ```json
 {
   "name": "workflow.name",
-  "trigger-defs": [
+  "eventTriggers": [
     {
       "name": "workflow.trigger.name",
       "source": "workflow.trigger.source",
       "type": "workflow.trigger.type",
-      "correlation-token": "workflow.trigger.correlationtoken"
+      "correlationToken": "workflow.trigger.correlationtoken"
     }
   ],
   "states": [
     {
       "events": [
         {
-          "event-expression": "workflow.state.event.eventexpression",
+          "event": "workflow.state.event.eventexpression",
           "timeout": "workflow.state.event.timeout",
-          "action-mode": "workflow.state.event.actionmode",
+          "actionMode": "workflow.state.event.actionmode",
           "actions": [
             {
               "function": {
@@ -393,13 +393,13 @@ With this set up in your workflow json (same for yaml) you can use value substit
               "timeout": 5,
               "retry": {
                 "match": "workflow.state.event.action.retry.match",
-                "retry-interval": 2,
-                "max-retry": 10,
-                "next-state": "workflow.state.event.action.retry.nextstate"
+                "interval": 2,
+                "maxRetries": 10,
+                "nextState": "workflow.state.event.action.retry.nextstate"
               }
             }
           ],
-          "next-state": "workflow.state.event.nextstate"
+          "nextState": "workflow.state.event.nextstate"
         }
       ],
       "name": "workflow.state.name",

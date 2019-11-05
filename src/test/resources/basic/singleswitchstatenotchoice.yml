@@ -1,11 +1,12 @@
-starts-at: switchstate
+startAt: switchstate
 states:
 - choices:
-  - not:
-      path: testpath
-      value: testvalue
-      operator: Equals
-    next-state: testnextstate
+  - condition:
+      not:
+        path: testpath
+        value: testvalue
+        operator: Equals
+    nextState: testnextstate
   default: defaultteststate
   name: switchstate
   type: SWITCH

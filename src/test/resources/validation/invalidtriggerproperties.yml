@@ -1,12 +1,12 @@
 name: test-wf
-starts-at:
-trigger-defs:
+startAt:
+eventTriggers:
 - name: testtriggerevent
   source: testsource
   type: testeventtype
-  correlation-token: testcorrelationtoken
+  correlationToken: testcorrelationtoken
 - name: testtriggerevent
   source: testsource
   type: testeventtype
-  correlation-token: testcorrelationtoken
+  correlationToken: testcorrelationtoken
 states: []

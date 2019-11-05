@@ -1,15 +1,15 @@
 {
   "name": "test-wf",
-  "starts-at": "test-state",
+  "startAt": "test-state",
   "states": [
     {
       "branches": [
         {
           "name": "firsttestbranch",
-          "starts-at": "operationstate",
+          "startAt": "operationstate",
           "states": [
             {
-              "action-mode": "SEQUENTIAL",
+              "actionMode": "SEQUENTIAL",
               "actions": [
                 {
                   "function": {
@@ -19,36 +19,36 @@
                   "timeout": "PT5S",
                   "retry": {
                     "match": "testMatch",
-                    "retry-interval": "PT5S",
-                    "max-retry": 10,
-                    "next-state": "testNextRetryState"
+                    "interval": "PT5S",
+                    "maxRetries": 10,
+                    "nextState": "testNextRetryState"
                   }
                 }
               ],
-              "next-state": "testnextstate",
+              "nextState": "testnextstate",
               "name": "operationstate",
               "type": "OPERATION",
               "end": true
             }
           ],
-          "wait-for-completion": false
+          "waitForCompletion": false
         },
         {
           "name": "secondtestbranch",
-          "starts-at": "delaystate",
+          "startAt": "delaystate",
           "states": [
             {
-              "time-delay": "PT5S",
-              "next-state": "testNextState",
+              "timeDelay": "PT5S",
+              "nextState": "testNextState",
               "name": "delaystate",
               "type": "DELAY",
               "end": false
             }
           ],
-          "wait-for-completion": true
+          "waitForCompletion": true
         }
       ],
-      "next-state": "testnextstate",
+      "nextState": "testnextstate",
       "name": "test-state",
       "type": "PARALLEL",
       "end": true

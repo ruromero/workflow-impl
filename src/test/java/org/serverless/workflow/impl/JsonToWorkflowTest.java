@@ -24,10 +24,10 @@ import org.serverless.workflow.api.Workflow;
 import org.serverless.workflow.api.WorkflowManager;
 import org.serverless.workflow.api.actions.Action;
 import org.serverless.workflow.api.branches.Branch;
-import org.serverless.workflow.api.choices.AndChoice;
-import org.serverless.workflow.api.choices.NotChoice;
-import org.serverless.workflow.api.choices.OrChoice;
-import org.serverless.workflow.api.choices.SingleChoice;
+import org.serverless.workflow.api.choices.AndCondition;
+import org.serverless.workflow.api.choices.NotCondition;
+import org.serverless.workflow.api.choices.OrCondition;
+import org.serverless.workflow.api.choices.SingleCondition;
 import org.serverless.workflow.api.events.Event;
 import org.serverless.workflow.api.states.DefaultState;
 import org.serverless.workflow.api.states.DelayState;
@@ -55,9 +55,9 @@ public class JsonToWorkflowTest extends BaseWorkflowTest {
 
         Workflow workflow = workflowManager.getWorkflow();
 
-        assertEquals("", workflow.getStartsAt());
+        assertEquals("", workflow.getStartAt());
         assertNotNull(workflow);
-        assertThat(workflow.getTriggerDefs().size(),
+        assertThat(workflow.getEventTriggers().size(),
                    is(0));
         assertNotNull(workflow.getStates());
         assertThat(workflow.getStates().size(),
@@ -74,9 +74,9 @@ public class JsonToWorkflowTest extends BaseWorkflowTest {
 
         Workflow workflow = workflowManager.getWorkflow();
 
-        assertEquals("", workflow.getStartsAt());
+        assertEquals("", workflow.getStartAt());
         assertNotNull(workflow);
-        assertThat(workflow.getTriggerDefs().size(),
+        assertThat(workflow.getEventTriggers().size(),
                    is(0));
         assertNotNull(workflow.getStates());
         assertThat(workflow.getStates().size(),
@@ -100,22 +100,22 @@ public class JsonToWorkflowTest extends BaseWorkflowTest {
 
         Workflow workflow = workflowManager.getWorkflow();
 
-        assertEquals("", workflow.getStartsAt());
+        assertEquals("", workflow.getStartAt());
         assertNotNull(workflow);
-        assertThat(workflow.getTriggerDefs().size(),
+        assertThat(workflow.getEventTriggers().size(),
                    is(1));
         assertNotNull(workflow.getStates());
         assertThat(workflow.getStates().size(),
                    is(0));
 
         assertEquals("test-trigger",
-                     workflow.getTriggerDefs().get(0).getName());
+                     workflow.getEventTriggers().get(0).getName());
         assertEquals("testsource",
-                     workflow.getTriggerDefs().get(0).getSource());
+                     workflow.getEventTriggers().get(0).getSource());
         assertEquals("testeventtype",
-                     workflow.getTriggerDefs().get(0).getType());
+                     workflow.getEventTriggers().get(0).getType());
         assertEquals("testcorrelationtoken",
-                     workflow.getTriggerDefs().get(0).getCorrelationToken());
+                     workflow.getEventTriggers().get(0).getCorrelationToken());
     }
 
     @ParameterizedTest
@@ -128,8 +128,8 @@ public class JsonToWorkflowTest extends BaseWorkflowTest {
         Workflow workflow = workflowManager.getWorkflow();
         assertNotNull(workflow);
 
-        assertEquals("test-state", workflow.getStartsAt());
-        assertThat(workflow.getTriggerDefs().size(),
+        assertEquals("test-state", workflow.getStartAt());
+        assertThat(workflow.getEventTriggers().size(),
                    is(0));
         assertNotNull(workflow.getStates());
         assertThat(workflow.getStates().size(),
@@ -150,20 +150,11 @@ public class JsonToWorkflowTest extends BaseWorkflowTest {
         Event event = eventState.getEvents().get(0);
         assertEquals("testNextState",
                      event.getNextState());
-        assertEquals("testEventExpression",
-                     event.getEventExpression());
-        assertEquals(Event.ActionMode.SEQUENTIAL,
-                     event.getActionMode());
+        assertEquals("testEventName",
+                     event.getEvent());
 
-        assertNotNull(event.getActions());
-        assertEquals(1,
-                     event.getActions().size());
-        assertEquals("testFunction",
-                     event.getActions().get(0).getFunction().getName());
-        assertNotNull(event.getActions().get(0).getRetry());
-
-        assertEquals("testMatch",
-                     event.getActions().get(0).getRetry().getMatch());
+        assertEquals("testTimeout", event.getTimeout().getPeriod());
+        assertEquals("timeoutState", event.getTimeout().getThen());
     }
 
     @ParameterizedTest
@@ -177,8 +168,8 @@ public class JsonToWorkflowTest extends BaseWorkflowTest {
         Workflow workflow = workflowManager.getWorkflow();
         assertNotNull(workflow);
 
-        assertEquals("test-state", workflow.getStartsAt());
-        assertThat(workflow.getTriggerDefs().size(),
+        assertEquals("test-state", workflow.getStartAt());
+        assertThat(workflow.getEventTriggers().size(),
                    is(0));
         assertNotNull(workflow.getStates());
         assertThat(workflow.getStates().size(),
@@ -205,8 +196,8 @@ public class JsonToWorkflowTest extends BaseWorkflowTest {
         Workflow workflow = workflowManager.getWorkflow();
         assertNotNull(workflow);
 
-        assertEquals("test-state", workflow.getStartsAt());
-        assertThat(workflow.getTriggerDefs().size(),
+        assertEquals("test-state", workflow.getStartAt());
+        assertThat(workflow.getEventTriggers().size(),
                    is(0));
         assertNotNull(workflow.getStates());
         assertThat(workflow.getStates().size(),
@@ -242,7 +233,7 @@ public class JsonToWorkflowTest extends BaseWorkflowTest {
 
         Workflow workflow = workflowManager.getWorkflow();
         assertNotNull(workflow);
-        assertThat(workflow.getTriggerDefs().size(),
+        assertThat(workflow.getEventTriggers().size(),
                    is(0));
         assertNotNull(workflow.getStates());
         assertThat(workflow.getStates().size(),
@@ -302,7 +293,7 @@ public class JsonToWorkflowTest extends BaseWorkflowTest {
 
         Workflow workflow = workflowManager.getWorkflow();
         assertNotNull(workflow);
-        assertThat(workflow.getTriggerDefs().size(),
+        assertThat(workflow.getEventTriggers().size(),
                    is(0));
         assertNotNull(workflow.getStates());
         assertThat(workflow.getStates().size(),
@@ -320,19 +311,19 @@ public class JsonToWorkflowTest extends BaseWorkflowTest {
         assertNotNull(switchState.getChoices());
         assertThat(switchState.getChoices().size(),
                    is(1));
-        assertTrue(switchState.getChoices().get(0) instanceof AndChoice);
+        assertTrue(switchState.getChoices().get(0).getCondition() instanceof AndCondition);
 
         workflowManager.setMarkup(getFileContents(getResourcePath("basic/singleswitchstatenotchoice.json")));
         workflow = workflowManager.getWorkflow();
         assertNotNull(workflow);
         switchState = (SwitchState) workflow.getStates().get(0);
-        assertTrue(switchState.getChoices().get(0) instanceof NotChoice);
+        assertTrue(switchState.getChoices().get(0).getCondition() instanceof NotCondition);
 
         workflowManager.setMarkup(getFileContents(getResourcePath("basic/singleswitchstateorchoice.json")));
         workflow = workflowManager.getWorkflow();
         assertNotNull(workflow);
         switchState = (SwitchState) workflow.getStates().get(0);
-        assertTrue(switchState.getChoices().get(0) instanceof OrChoice);
+        assertTrue(switchState.getChoices().get(0).getCondition() instanceof OrCondition);
     }
 
     @ParameterizedTest
@@ -345,7 +336,7 @@ public class JsonToWorkflowTest extends BaseWorkflowTest {
         Workflow workflow = workflowManager.getWorkflow();
         assertNotNull(workflow);
         SwitchState switchState = (SwitchState) workflow.getStates().get(0);
-        assertTrue(switchState.getChoices().get(0) instanceof NotChoice);
+        assertTrue(switchState.getChoices().get(0).getCondition() instanceof NotCondition);
     }
 
     @ParameterizedTest
@@ -358,7 +349,7 @@ public class JsonToWorkflowTest extends BaseWorkflowTest {
         Workflow workflow = workflowManager.getWorkflow();
         assertNotNull(workflow);
         SwitchState switchState = (SwitchState) workflow.getStates().get(0);
-        assertTrue(switchState.getChoices().get(0) instanceof OrChoice);
+        assertTrue(switchState.getChoices().get(0).getCondition() instanceof OrCondition);
     }
 
     @ParameterizedTest
@@ -371,6 +362,6 @@ public class JsonToWorkflowTest extends BaseWorkflowTest {
         Workflow workflow = workflowManager.getWorkflow();
         assertNotNull(workflow);
         SwitchState switchState = (SwitchState) workflow.getStates().get(0);
-        assertTrue(switchState.getChoices().get(0) instanceof SingleChoice);
+        assertTrue(switchState.getChoices().get(0).getCondition() instanceof SingleCondition);
     }
 }

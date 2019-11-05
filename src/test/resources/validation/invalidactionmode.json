@@ -5,9 +5,9 @@
       "name": "test-state",
       "events": [
         {
-          "event-expression": "testEventExpression",
+          "event": "testEventExpression",
           "timeout": "testTimeout",
-          "action-mode": "CUSTOMACTIONMODE",
+          "actionMode": "CUSTOMACTIONMODE",
           "actions": [
             {
               "function": {
@@ -16,13 +16,13 @@
               "timeout": "PT5S",
               "retry": {
                 "match": "testMatch",
-                "retry-interval": "PT5S",
-                "max-retry": 10,
-                "next-state": "testNextRetryState"
+                "interval": "PT5S",
+                "maxRetries": 10,
+                "nextState": "testNextRetryState"
               }
             }
           ],
-          "next-state": "testNextState"
+          "nextState": "testNextState"
         }
       ],
       "type": "EVENT",

@@ -1,15 +1,17 @@
 {
-  "starts-at": "switchstate",
+  "startAt": "switchstate",
   "states": [
     {
       "choices": [
         {
-          "not": {
-            "path": "testpath",
-            "value": "testvalue",
-            "operator": "Equals"
+          "condition": {
+            "not": {
+              "path": "testpath",
+              "value": "testvalue",
+              "operator": "Equals"
+            }
           },
-          "next-state": "testnextstate"
+          "nextState": "testnextstate"
         }
       ],
       "default": "defaultteststate",

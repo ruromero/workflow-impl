@@ -1,5 +1,5 @@
 name: "test-wf"
-starts-at: ""
+startAt: ""
 metadata:
   key1: "value1"
   key2: "value2"

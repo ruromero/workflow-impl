@@ -1,9 +1,9 @@
 {
   "name": "test-wf",
-  "starts-at": "test-state",
+  "startAt": "test-state",
   "states": [
     {
-      "action-mode": "SEQUENTIAL",
+      "actionMode": "SEQUENTIAL",
       "actions": [
         {
           "function": {
@@ -17,18 +17,18 @@
           "timeout": "PT5S",
           "retry": {
             "match": "testMatch",
-            "retry-interval": "PT5S",
-            "max-retry": 10,
-            "next-state": "testNextRetryState"
+            "interval": "PT5S",
+            "maxRetries": 10,
+            "nextState": "testNextRetryState"
           }
         }
       ],
       "filter": {
-        "input-path": "$.owner.address.zipcode",
-        "result-path": "$.country.code",
-        "output-path": "$.owner.address.countryCode"
+        "inputPath": "$.owner.address.zipcode",
+        "resultPath": "$.country.code",
+        "outputPath": "$.owner.address.countryCode"
       },
-      "next-state": "testnextstate",
+      "nextState": "testnextstate",
       "name": "test-state",
       "type": "OPERATION",
       "end": true

@@ -6,8 +6,8 @@ states:
     - path: testpath
       value: testvalue
       operator: CUSTOMOPERATOR
-      next-state: testnextstate
-    next-state: testnextstate
+      nextState: testnextstate
+    nextState: testnextstate
   default: defaultteststate
   type: SWITCH
   end: false

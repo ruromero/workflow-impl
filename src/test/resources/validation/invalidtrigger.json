@@ -1,11 +1,11 @@
 {
   "name": "test-wf",
-  "starts-at": "",
-  "trigger-defs": [
+  "startAt": "",
+  "eventTriggers": [
     {
       "source": "testsource",
       "type": "testeventtype",
-      "correlation-token": "testcorrelationtoken"
+      "correlationToken": "testcorrelationtoken"
     }
   ],
   "states": []

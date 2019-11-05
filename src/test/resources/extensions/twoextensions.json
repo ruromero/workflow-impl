@@ -1,6 +1,6 @@
 {
   "name": "test-wf",
-  "starts-at": "",
+  "startAt": "",
   "states": [],
   "extensions": [
     {

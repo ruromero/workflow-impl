@@ -1,25 +1,17 @@
 name: "test-wf"
-starts-at: "test-state"
-trigger-defs:
-- name: "test-trigger"
+startAt: "test-state"
+eventTriggers:
+- name: "test-event"
   source: "testsource"
   type: "testeventtype"
-  correlation-token: "testcorrelationtoken"
+  correlationToken: "testcorrelationtoken"
 states:
 - events:
-  - event-expression: "name eq 'test-trigger'"
-    timeout: "testTimeout"
-    action-mode: "SEQUENTIAL"
-    actions:
-    - function:
-        name: "testFunction"
-      timeout: "PT5S"
-      retry:
-        match: "testMatch"
-        retry-interval: "PT5S"
-        max-retry: 10
-        next-state: "testNextRetryState"
-    next-state: "testNextState"
+  - event: "test-event"
+    timeout:
+      period: "testTimeout"
+      then: "timeoutState"
+    nextState: "testNextState"
   name: "test-state"
   type: "EVENT"
   end: true

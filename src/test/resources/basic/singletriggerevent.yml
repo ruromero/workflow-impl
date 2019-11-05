@@ -1,8 +1,8 @@
 name: "test-wf"
-starts-at: ""
-trigger-defs:
+startAt: ""
+eventTriggers:
 - name: "test-trigger"
   source: "testsource"
   type: "testeventtype"
-  correlation-token: "testcorrelationtoken"
+  correlationToken: "testcorrelationtoken"
 states: []

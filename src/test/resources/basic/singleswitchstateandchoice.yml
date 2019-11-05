@@ -1,12 +1,13 @@
 name: "test-wf"
-starts-at: "test-state"
+startAt: "test-state"
 states:
 - choices:
-  - and:
-    - path: "testpath"
-      value: "testvalue"
-      operator: "Equals"
-    next-state: "testnextstate"
+  - condition:
+      and:
+      - path: "testpath"
+        value: "testvalue"
+        operator: "Equals"
+    nextState: "testnextstate"
   default: "defaultteststate"
   name: "test-state"
   type: "SWITCH"
