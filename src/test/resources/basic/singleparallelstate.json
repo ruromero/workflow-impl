@@ -25,7 +25,6 @@
                   }
                 }
               ],
-              "nextState": "testnextstate",
               "name": "operationstate",
               "type": "OPERATION",
               "end": true
@@ -48,7 +47,6 @@
           "waitForCompletion": true
         }
       ],
-      "nextState": "testnextstate",
       "name": "test-state",
       "type": "PARALLEL",
       "end": true

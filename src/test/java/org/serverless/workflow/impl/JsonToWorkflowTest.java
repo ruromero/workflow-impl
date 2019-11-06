@@ -205,8 +205,6 @@ public class JsonToWorkflowTest extends BaseWorkflowTest {
         assertTrue(workflow.getStates().get(0) instanceof OperationState);
 
         OperationState operationState = (OperationState) workflow.getStates().get(0);
-        assertEquals("testnextstate",
-                     operationState.getNextState());
         assertEquals("test-state",
                      operationState.getName());
         assertEquals(EventState.Type.OPERATION,
@@ -242,8 +240,6 @@ public class JsonToWorkflowTest extends BaseWorkflowTest {
 
         ParallelState parallelState = (ParallelState) workflow.getStates().get(0);
 
-        assertEquals("testnextstate",
-                     parallelState.getNextState());
         assertEquals("test-state",
                      parallelState.getName());
         assertEquals(EventState.Type.PARALLEL,
@@ -277,8 +273,6 @@ public class JsonToWorkflowTest extends BaseWorkflowTest {
         assertTrue(branch2.getStates().get(0) instanceof DelayState);
         assertEquals("delaystate",
                      ((DelayState) branch2.getStates().get(0)).getName());
-        assertEquals("testNextState",
-                     ((DelayState) branch2.getStates().get(0)).getNextState());
         assertEquals("PT5S",
                      ((DelayState) branch2.getStates().get(0)).getTimeDelay());
         assertTrue(branch2.isWaitForCompletion());

@@ -122,7 +122,7 @@ public class WorkflowValidatorImpl implements WorkflowValidator {
                             if (s instanceof OperationState) {
                                 OperationState operationState = (OperationState) s;
 
-                                if (operationState.getNextState() == null || operationState.getNextState().trim().isEmpty()) {
+                                if (!operationState.isEnd() && (operationState.getNextState() == null || operationState.getNextState().trim().isEmpty())) {
                                     addValidationError("Next state should not be empty.",
                                                        ValidationError.WORKFLOW_VALIDATION);
                                 }
@@ -130,7 +130,7 @@ public class WorkflowValidatorImpl implements WorkflowValidator {
                             if (s instanceof SwitchState) {
                                 SwitchState switchState = (SwitchState) s;
 
-                                if (switchState.getDefault() == null || switchState.getDefault().trim().isEmpty()) {
+                                if (!switchState.isEnd() && (switchState.getDefault() == null || switchState.getDefault().trim().isEmpty())) {
                                     addValidationError("Default should not be empty.",
                                                        ValidationError.WORKFLOW_VALIDATION);
                                 }
@@ -138,7 +138,7 @@ public class WorkflowValidatorImpl implements WorkflowValidator {
                             if (s instanceof ParallelState) {
                                 ParallelState parallelState = (ParallelState) s;
 
-                                if (parallelState.getNextState() == null || parallelState.getNextState().trim().isEmpty()) {
+                                if (!parallelState.isEnd() && (parallelState.getNextState() == null || parallelState.getNextState().trim().isEmpty())) {
                                     addValidationError("Next state should not be empty.",
                                                        ValidationError.WORKFLOW_VALIDATION);
                                 }
@@ -155,7 +155,7 @@ public class WorkflowValidatorImpl implements WorkflowValidator {
                             if (s instanceof DelayState) {
                                 DelayState delayState = (DelayState) s;
 
-                                if (delayState.getNextState() == null || delayState.getNextState().trim().isEmpty()) {
+                                if (!delayState.isEnd() && (delayState.getNextState() == null || delayState.getNextState().trim().isEmpty())) {
                                     addValidationError("Next state should not be empty.",
                                                        ValidationError.WORKFLOW_VALIDATION);
                                 }

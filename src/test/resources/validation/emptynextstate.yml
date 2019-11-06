@@ -5,4 +5,4 @@ states:
   nextState: ''
   name: test-state
   type: DELAY
-  end: true
+  end: false

@@ -184,11 +184,14 @@ public class WorkflowValidatorTest extends BaseWorkflowTest {
 
         List<ValidationError> validationErrorList = workflowValidator.validate();
 
-        assertEquals(1,
+        assertEquals(2,
                      validationErrorList.size());
 
         expectError(validationErrorList,
                     "Next state should not be empty.",
+                    ValidationError.WORKFLOW_VALIDATION);
+        expectError(validationErrorList,
+                    "No end state found.",
                     ValidationError.WORKFLOW_VALIDATION);
     }
 

@@ -167,7 +167,7 @@ public class WorkflowToMarkupTest extends BaseWorkflowTest {
                 "2");
         }};
         Workflow workflow = new Workflow().withName("test-wf").withStartAt("test-state").withStates(new ArrayList<State>() {{
-            add(new OperationState().withName("test-state").withEnd(true).withActionMode(OperationState.ActionMode.SEQUENTIAL).withNextState("testnextstate")
+            add(new OperationState().withName("test-state").withEnd(true).withActionMode(OperationState.ActionMode.SEQUENTIAL)
                     .withFilter(new Filter()
                                     .withInputPath("$.owner.address.zipcode")
                                     .withResultPath("$.country.code")
@@ -199,11 +199,11 @@ public class WorkflowToMarkupTest extends BaseWorkflowTest {
     @Test
     public void testParallellState() {
         Workflow workflow = new Workflow().withName("test-wf").withStartAt("test-state").withStates(new ArrayList<State>() {{
-            add(new ParallelState().withName("test-state").withEnd(true).withNextState("testnextstate")
+            add(new ParallelState().withName("test-state").withEnd(true)
                     .withBranches(Arrays.asList(
                         new Branch().withName("firsttestbranch").withStartAt("operationstate").withStates(
                             new ArrayList<State>() {{
-                                add(new OperationState().withName("operationstate").withEnd(true).withActionMode(OperationState.ActionMode.SEQUENTIAL).withNextState("testnextstate")
+                                add(new OperationState().withName("operationstate").withEnd(true).withActionMode(OperationState.ActionMode.SEQUENTIAL)
                                         .withActions(Arrays.asList(
                                             new Action().withFunction(new Function().withName("testFunction").withType("someType"))
                                                 .withTimeout("PT5S")

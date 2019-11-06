@@ -16,7 +16,6 @@ states:
           interval: "PT5S"
           maxRetries: 10
           nextState: "testNextRetryState"
-      nextState: "testnextstate"
       name: "operationstate"
       type: "OPERATION"
       end: true
@@ -30,7 +29,6 @@ states:
       type: "DELAY"
       end: false
     waitForCompletion: true
-  nextState: "testnextstate"
   name: "test-state"
   type: "PARALLEL"
   end: true

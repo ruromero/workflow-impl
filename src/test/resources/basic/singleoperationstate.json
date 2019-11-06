@@ -28,7 +28,6 @@
         "resultPath": "$.country.code",
         "outputPath": "$.owner.address.countryCode"
       },
-      "nextState": "testnextstate",
       "name": "test-state",
       "type": "OPERATION",
       "end": true
